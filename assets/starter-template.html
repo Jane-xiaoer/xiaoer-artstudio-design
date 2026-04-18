@@ -1,0 +1,367 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Your Studio — Starter Template</title>
+<!--
+  Starter template for the "小耳 Art Studio" design methodology.
+  Replace ALL content marked with [BRACKETS].
+  Read ../references/DESIGN_PRINCIPLES.md before editing styles.
+-->
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* 1+4+1 palette — swap these for a remix, keep the structure */
+    --canvas: #ffffff;
+    --ink: #111111;
+    --line: #1a1a1a;
+    --muted: #888888;
+    --body: #444444;
+
+    --pastel-mint:   #CCE8B0;
+    --pastel-cream:  #FEFCE0;
+    --pastel-cherry: #FFE5E5;
+    --pastel-sky:    #C2EEF7;
+
+    --accent: #c8ff00;   /* lime — use ≤3 times per page */
+
+    --serif: 'DM Serif Display', Georgia, 'Songti SC', serif;
+    --hand:  'Caveat', cursive;
+    --sans:  system-ui, -apple-system, 'Helvetica Neue',
+             'PingFang SC', 'Hiragino Kaku Gothic ProN', sans-serif;
+
+    --nav-h: 64px;
+    --section-pad-y: 96px;
+    --section-pad-x: max(48px, 6vw);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.9;
+    color: var(--body);
+    background: var(--canvas);
+  }
+
+  /* ----- Navigation ----- */
+  nav.brand {
+    position: fixed; top: 0; left: 0; right: 0;
+    height: var(--nav-h);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 var(--section-pad-x);
+    background: var(--canvas);
+    z-index: 10;
+  }
+  nav.brand .mark { font-family: var(--serif); font-style: italic; font-size: 20px; color: var(--ink); }
+  nav.brand .sub  { font-family: var(--sans); font-size: 13px; color: var(--muted); margin-top: 2px; }
+
+  /* ----- Section ----- */
+  section {
+    padding: var(--section-pad-y) var(--section-pad-x);
+    position: relative;
+    overflow: hidden;
+  }
+  section.pastel-mint   { background: var(--pastel-mint); }
+  section.pastel-cream  { background: var(--pastel-cream); }
+  section.pastel-cherry { background: var(--pastel-cherry); }
+  section.pastel-sky    { background: var(--pastel-sky); }
+
+  /* ----- Section label ----- */
+  .section-label {
+    font-family: var(--hand);
+    font-size: 32px;
+    color: var(--ink);
+    margin-bottom: 8px;
+  }
+  .section-label + svg.wavy { display: block; margin-bottom: 48px; }
+
+  /* ----- Dotted divider ----- */
+  .divider {
+    height: 16px;
+    background-image: radial-gradient(circle, #5a8a38 1.5px, transparent 1.5px);
+    background-size: 16px 16px;
+    background-repeat: repeat-x;
+    background-position: center;
+  }
+
+  /* ----- Hero ----- */
+  .hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding-top: calc(var(--nav-h) + 48px);
+  }
+  .hero-text {
+    font-family: var(--hand);
+    font-size: 56px;
+    line-height: 1.3;
+    color: var(--ink);
+    text-align: center;
+    animation: heroTextIn 800ms cubic-bezier(0.22, 1, 0.36, 1) 200ms both;
+  }
+  .hero-decoration {
+    position: absolute; left: 0; right: 0; bottom: 0;
+    height: 30vh;
+    pointer-events: none;
+  }
+  @keyframes heroTextIn {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ----- Bilingual intro ----- */
+  .intro-cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 64px;
+    max-width: 1200px;
+    margin: 0 auto 48px;
+  }
+  .intro-cols p { margin-bottom: 28px; }
+  .intro-cta {
+    display: block; width: fit-content;
+    margin: 0 auto;
+    padding: 14px 40px;
+    border: 1px solid var(--line);
+    border-radius: 100px;
+    font-family: var(--sans);
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--ink);
+  }
+
+  /* ----- Products grid ----- */
+  .products-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 48px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .product {
+    text-align: center;
+  }
+  .product-thumb {
+    aspect-ratio: 1 / 1;
+    border-radius: 50%;
+    overflow: hidden;
+    background: #f0e8d4;
+    margin-bottom: 16px;
+  }
+  .product-badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    font-size: 11px;
+    margin-bottom: 6px;
+  }
+  .product-name { font-size: 16px; color: var(--ink); margin-bottom: 2px; }
+  .product-price { font-size: 12px; color: var(--muted); }
+
+  /* ----- Collections triptych ----- */
+  .collections-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 48px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .collection-item img {
+    width: 100%; aspect-ratio: 1 / 1;
+    object-fit: contain; filter: grayscale(1);
+  }
+  .collection-ordinal { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 16px; }
+  .collection-title { font-family: var(--serif); font-style: italic; font-size: 20px; color: var(--ink); margin: 8px 0; }
+  .collection-desc { font-size: 13px; color: var(--body); }
+
+  /* ----- About ----- */
+  .about-wrap { display: grid; grid-template-columns: 1fr 320px; gap: 80px; align-items: center; max-width: 1200px; margin: 0 auto; }
+  .about-name { font-size: 48px; color: var(--ink); margin: 16px 0 32px; }
+  .about-portrait { width: 280px; height: 280px; border-radius: 50%; overflow: hidden; background: #ddd; margin-left: auto; }
+  .about-tag, .about-role { animation: about-float 4s ease-in-out infinite; }
+  .about-role { animation-duration: 4.2s; animation-delay: 800ms; }
+  @keyframes about-float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+
+  /* ----- Contact ----- */
+  .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; max-width: 1000px; margin: 0 auto; }
+  .contact-cell { padding: 24px 0; border-bottom: 1px solid rgba(0,0,0,0.08); }
+  .contact-label { font-size: 11px; color: var(--muted); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 8px; }
+  .contact-handle { font-family: var(--serif); font-style: italic; font-size: 18px; }
+
+  /* ----- Footer ----- */
+  footer { padding: 96px 48px; text-align: center; }
+  footer .mark { font-family: var(--serif); font-style: italic; font-size: 28px; }
+  footer .sub { font-family: var(--sans); font-size: 13px; color: var(--muted); margin-top: 4px; margin-bottom: 32px; }
+  footer .legal a { color: var(--ink); text-decoration: none; margin: 0 12px; font-size: 13px; }
+  footer .copy { font-size: 12px; color: var(--muted); margin-top: 16px; }
+
+  /* ----- Accessibility ----- */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0ms !important; animation-iteration-count: 1 !important; transition-duration: 0ms !important; }
+  }
+
+  /* ----- Responsive ----- */
+  @media (max-width: 900px) {
+    .intro-cols, .contact-grid { grid-template-columns: 1fr; }
+    .products-grid { grid-template-columns: repeat(2, 1fr); }
+    .collections-grid { grid-template-columns: 1fr; }
+    .hero-text { font-size: 36px; }
+    .about-wrap { grid-template-columns: 1fr; }
+    .about-portrait { margin: 0 auto; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="brand">
+  <div>
+    <div class="mark">[Your Studio Name]</div>
+    <div class="sub">by [your name]</div>
+  </div>
+  <!-- Petal logo (SVG primitive #4 — see ../references/SVG_VOCABULARY.md) -->
+  <svg width="36" height="36" viewBox="0 0 44 44" aria-hidden="true">
+    <g transform="rotate(0 22 22)">
+      <path d="M22 21 C19 20 15 17 14 13 C13 9 15 5 18 4 C20 3 22 4 23 6 C25 4 27 3 29 5 C31 7 31 11 29 14 C27 17 24 20 22 21Z" fill="#f0b0c0" stroke="#1a1a1a" stroke-width="1.2"/>
+    </g>
+    <g transform="rotate(72 22 22)"><path d="M22 21 C19 20 15 17 14 13 C13 9 15 5 18 4 C20 3 22 4 23 6 C25 4 27 3 29 5 C31 7 31 11 29 14 C27 17 24 20 22 21Z" fill="#f5bec8" stroke="#1a1a1a" stroke-width="1.2"/></g>
+    <g transform="rotate(144 22 22)"><path d="M22 21 C19 20 15 17 14 13 C13 9 15 5 18 4 C20 3 22 4 23 6 C25 4 27 3 29 5 C31 7 31 11 29 14 C27 17 24 20 22 21Z" fill="#f0b0c0" stroke="#1a1a1a" stroke-width="1.2"/></g>
+    <g transform="rotate(216 22 22)"><path d="M22 21 C19 20 15 17 14 13 C13 9 15 5 18 4 C20 3 22 4 23 6 C25 4 27 3 29 5 C31 7 31 11 29 14 C27 17 24 20 22 21Z" fill="#f5bec8" stroke="#1a1a1a" stroke-width="1.2"/></g>
+    <g transform="rotate(288 22 22)"><path d="M22 21 C19 20 15 17 14 13 C13 9 15 5 18 4 C20 3 22 4 23 6 C25 4 27 3 29 5 C31 7 31 11 29 14 C27 17 24 20 22 21Z" fill="#f0b0c0" stroke="#1a1a1a" stroke-width="1.2"/></g>
+    <circle cx="22" cy="22" r="4" fill="#e879a0" stroke="#1a1a1a" stroke-width="1"/>
+  </svg>
+</nav>
+
+<!-- =============== HERO =============== -->
+<section class="hero">
+  <div class="hero-text">
+    Everyday [mood-word].<br>
+    Sometimes [contrast-mood].
+  </div>
+  <!-- Decoration band at bottom — replace with your own SVG primitives -->
+  <div class="hero-decoration">
+    <!-- Drop in 3–5 organic blobs from ../references/SVG_VOCABULARY.md primitive #1 -->
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- =============== BILINGUAL INTRO =============== -->
+<section>
+  <div class="intro-cols">
+    <div>
+      <p>[Line 1 — poetic, in your primary language]<br>[Line 2 — matched break]</p>
+      <p>[Line 3]<br>[Line 4]</p>
+      <p>[Line 5]<br>[Line 6]</p>
+    </div>
+    <div>
+      <p>[Matching translation line 1]<br>[Translation line 2]</p>
+      <p>[Translation line 3]<br>[Translation line 4]</p>
+      <p>[Translation line 5]<br>[Translation line 6]</p>
+    </div>
+  </div>
+  <a href="#about" class="intro-cta">About [Your Studio]</a>
+</section>
+
+<div class="divider"></div>
+
+<!-- =============== PRODUCTS =============== -->
+<section class="pastel-mint">
+  <div class="section-label">Products</div>
+  <svg class="wavy" viewBox="0 0 1200 14" preserveAspectRatio="none" width="100%" height="14">
+    <path d="M0 7 Q60 3 120 7 Q180 11 240 7 Q300 3 380 7 Q460 11 540 7 Q620 3 700 7 Q780 11 860 7 Q940 3 1020 8 Q1080 11 1140 7 Q1170 4 1200 7" stroke="#1a1a1a" stroke-width="1.2" fill="none"/>
+  </svg>
+  <div class="products-grid">
+    <!-- Repeat 8 times -->
+    <div class="product">
+      <div class="product-thumb"><!-- Product image here --></div>
+      <div class="product-badge">New</div>
+      <div class="product-name">[字]</div>
+      <div class="product-price">¥[price]</div>
+    </div>
+    <!-- … 7 more cells … -->
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- =============== COLLECTIONS =============== -->
+<section>
+  <div class="section-label">Collections Archives</div>
+  <svg class="wavy" viewBox="0 0 1200 14" preserveAspectRatio="none" width="100%" height="14">
+    <path d="M0 7 Q60 3 120 7 Q180 11 240 7 Q300 3 380 7 Q460 11 540 7 Q620 3 700 7 Q780 11 860 7 Q940 3 1020 8 Q1080 11 1140 7 Q1170 4 1200 7" stroke="#1a1a1a" stroke-width="1.2" fill="none"/>
+  </svg>
+  <div class="collections-grid">
+    <div class="collection-item">
+      <img src="[collection-1.png]" alt="">
+      <div class="collection-ordinal">1st Collection</div>
+      <div class="collection-title">[Evocative Title]</div>
+      <div class="collection-desc">[One sentence description]</div>
+    </div>
+    <!-- … 2 more cells … -->
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- =============== ABOUT =============== -->
+<section id="about" class="pastel-cream">
+  <div class="section-label">About</div>
+  <svg class="wavy" viewBox="0 0 1200 14" preserveAspectRatio="none" width="100%" height="14">
+    <path d="M0 7 Q60 3 120 7 Q180 11 240 7 Q300 3 380 7 Q460 11 540 7 Q620 3 700 7 Q780 11 860 7 Q940 3 1020 8 Q1080 11 1140 7 Q1170 4 1200 7" stroke="#1a1a1a" stroke-width="1.2" fill="none"/>
+  </svg>
+  <div class="about-wrap">
+    <div>
+      <div class="about-tag">Profile</div>
+      <div class="about-role">[art role / title]</div>
+      <div class="about-name">[Your Name]</div>
+      <p>[2–3 sentence bio in your primary language]</p>
+      <p>[Translation]</p>
+    </div>
+    <div class="about-portrait"><!-- portrait image --></div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- =============== CONTACT =============== -->
+<section class="pastel-sky">
+  <div class="section-label">Contact</div>
+  <svg class="wavy" viewBox="0 0 1200 14" preserveAspectRatio="none" width="100%" height="14">
+    <path d="M0 7 Q60 3 120 7 Q180 11 240 7 Q300 3 380 7 Q460 11 540 7 Q620 3 700 7 Q780 11 860 7 Q940 3 1020 8 Q1080 11 1140 7 Q1170 4 1200 7" stroke="#1a1a1a" stroke-width="1.2" fill="none"/>
+  </svg>
+  <div class="contact-grid">
+    <div class="contact-cell">
+      <div class="contact-label">[Channel 1]</div>
+      <div class="contact-handle">[@handle]</div>
+    </div>
+    <div class="contact-cell">
+      <div class="contact-label">[Channel 2]</div>
+      <div class="contact-handle">[handle]</div>
+    </div>
+    <!-- … add more cells as needed … -->
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- =============== FOOTER =============== -->
+<footer>
+  <div class="mark">[Your Studio Name]</div>
+  <div class="sub">by [your name]</div>
+  <div class="legal">
+    <a href="/legal">Legal Notice</a> |
+    <a href="/privacy">Privacy Policy</a> |
+    <a href="/refund">Refund</a> |
+    <a href="/shipping">Shipping</a>
+  </div>
+  <div class="copy">©[year], [Your Studio Name]</div>
+</footer>
+
+</body>
+</html>
