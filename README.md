@@ -115,3 +115,22 @@ https://github.com/Jane-xiaoer/xiaoer-artstudio-design
 ---
 
 *"Everyday uki uki. Sometimes doki doki."*
+
+---
+
+## 📱 关注作者 / Follow Me
+
+如果这个仓库对你有帮助，欢迎关注我。后面我会持续更新更多 AI Skill、网站设计、审美拆解和创意项目。
+
+If this repo helped you, follow me for more AI skills, design remixes, beautiful websites, and creative projects.
+
+- X (Twitter): [@xiaoerzhan](https://x.com/xiaoerzhan)
+- 微信公众号 / WeChat Official Account: 扫码关注 / Scan to follow
+
+<p align="center">
+  <img src="./follow-wechat-qrcode.jpg" alt="Jane WeChat Official Account QR code" width="300" />
+</p>
+
+<p align="center"><strong>中文：</strong>欢迎关注我的公众号，一起研究 AI Skill、网站设计、视觉风格和创意实验。</p>
+
+<p align="center"><strong>English:</strong> Follow my WeChat Official Account for more AI skills, website design, visual inspiration, and creative experiments.</p>
