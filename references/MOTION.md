@@ -1,6 +1,8 @@
 # Motion — Breath, Not Attention
 
-The site has exactly **4 named animations**. All of them are *ambient*: slow, small-amplitude, infinite, staggered. Nothing animates on scroll. Nothing pulses. Nothing demands.
+> This file covers **ambient motion** — what the page does at rest. For **interactive motion** (physics, text spring, rotors), see `INTERACTION.md`, `PHYSICS_GARDEN.md`, `TEXT_SPRING.md`. The two systems are complementary: ambient = sleeping page; interactive = awake-but-gentle page.
+
+The site has exactly **4 named ambient animations**. All of them are *ambient*: slow, small-amplitude, infinite, staggered. Nothing animates on scroll. Nothing pulses. Nothing demands.
 
 ## The Four Animations
 
@@ -81,7 +83,8 @@ Slightly more complex: rotation and scale micro-jitter over 4 keyframes. Used on
 | Easing                                 | `ease-in-out`     | Never `linear` for idle |
 | Iterations                             | `infinite`        | Never finite (except heroTextIn) |
 | Scroll-triggered animations            | NONE              | The page is alive at rest |
-| Hover animations                       | opacity only      | No scale/translate on hover |
+| Hover on **functional** controls       | opacity only      | Buttons, links, cards. No scale/translate. |
+| Hover on **decorative** elements       | physics-driven    | Drag, repel, or spin — see § Two Hover Categories below |
 | Reduced-motion fallback                | mandatory         | `@media (prefers-reduced-motion: reduce) { animation: none; }` |
 
 ## Accessibility
@@ -104,10 +107,15 @@ Respect `prefers-reduced-motion`:
 - Entrance animations on scroll (fade-in-on-scroll, etc.) — contradicts the ambient aesthetic
 - Any animation that loops under 3 seconds — reads as anxious
 - Pulsing CTAs — the design doesn't need to yell
+- Hover scale/translate on **functional** controls (product cards, links, buttons) — see § Two Hover Categories
 
-## If You Need a Hover
+## Two Hover Categories
 
-Reserve hover for **information**, not decoration:
+Every hover-able element on the page falls into one of two strict camps. They have **different rules** and must not mix.
+
+### Category 1 — Functional Controls (opacity only)
+
+Product cards, links, buttons, nav items, CTAs — anything the visitor needs to *click to access content*.
 
 ```css
 .product-card:hover {
@@ -116,4 +124,27 @@ Reserve hover for **information**, not decoration:
 }
 ```
 
-No scale, no translate, no filter, no shadow.
+**No scale, no translate, no filter, no shadow, no rotation.** The element must not move under the cursor — moving controls are anti-pattern UX (target evades, click misses).
+
+### Category 2 — Decorative Elements (physics, drag, repulsion, rotation)
+
+Decorative SVGs (floral blobs, stones, leaves, ornament marks) and the typography itself when used poetically — anything that exists to make the page feel *alive*, not to be clicked.
+
+For these, **transform-based hover is not only allowed, it's the signature**:
+
+| Element type             | Hover behavior          | Pattern doc                |
+|--------------------------|-------------------------|----------------------------|
+| Decorative SVG blobs     | Drag-with-gravity       | `PHYSICS_GARDEN.md`        |
+| Per-character text       | Spring repulsion        | `TEXT_SPRING.md`           |
+| Small SVG marks (flowers, plus signs) | Tangential spin / idle-spin boost | `INTERACTION.md` |
+
+The rule that holds across both categories: **a hover should never feel like a UI state change.** Category 1 hovers are *imperceptible-but-noticed* (0.08 opacity drop). Category 2 hovers feel like *physical contact* (the element has weight; you touched it; it reacted).
+
+If you can't honestly say "this looks like a real object responding to a cursor," fall back to Category 1 rules.
+
+### Failure modes when mixing categories
+
+- A product card that *scales up* on hover → reads like SaaS marketing, breaks the zine feeling
+- A decorative blob that *only changes opacity* → it looks like a broken button, no signal that it's draggable
+- A text block where every character moves AND it's also a link → ambiguous click target, frustrating
+- Using `cursor: pointer` on a decorative blob → tells the user it's clickable when it isn't (use `cursor: grab` instead, or leave default)

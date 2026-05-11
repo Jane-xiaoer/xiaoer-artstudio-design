@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Your Studio — Interactive Template</title>
+<!--
+  Interactive starter template for the "小耳 Art Studio" design methodology.
+  Adds the 4 interaction layers on top of starter-template.html:
+    1. Hero physics garden  (drag-able SVG decorations)
+    2. Text spring (pencil) (per-char repulsion in About section)
+    3. Text spring (plain)  (per-char repulsion in News section)
+    4. Tangential rotor     (sakura-style nav mark)
+    5. Idle spin            (contact plus marks)
+
+  Replace ALL content marked with [BRACKETS].
+  Read references/INTERACTION.md, PHYSICS_GARDEN.md, TEXT_SPRING.md before tuning.
+-->
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --canvas: #ffffff;
+    --ink: #111111;
+    --line: #1a1a1a;
+    --muted: #888888;
+    --body: #444444;
+
+    --pastel-mint:   #CCE8B0;
+    --pastel-cream:  #FEFCE0;
+    --pastel-cherry: #FFE5E5;
+    --pastel-sky:    #C2EEF7;
+    --accent: #c8ff00;
+
+    --serif: 'DM Serif Display', Georgia, 'Songti SC', serif;
+    --hand:  'Caveat', cursive;
+    --sans:  system-ui, -apple-system, 'Helvetica Neue', 'PingFang SC', sans-serif;
+
+    --nav-h: 64px;
+    --section-pad-y: 96px;
+    --section-pad-x: max(48px, 6vw);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body { font-family: var(--sans); font-size: 15px; line-height: 1.9; color: var(--body); background: var(--canvas); }
+
+  /* ----- Nav ----- */
+  nav.brand {
+    position: fixed; top: 0; left: 0; right: 0;
+    height: var(--nav-h);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 var(--section-pad-x);
+    background: var(--canvas); z-index: 10;
+  }
+  nav.brand .mark { font-family: var(--serif); font-style: italic; font-size: 20px; color: var(--ink); }
+  /* The sakura mark — receives initTangentialRotor() */
+  .nav-menu-btn {
+    width: 44px; height: 44px;
+    background: transparent; border: 0; padding: 0; cursor: pointer;
+  }
+  .nav-menu-btn svg { display: block; transition: none; will-change: transform; }
+
+  /* ----- Section ----- */
+  section { padding: var(--section-pad-y) var(--section-pad-x); position: relative; overflow: hidden; }
+  section.pastel-mint   { background: var(--pastel-mint); }
+  section.pastel-cream  { background: var(--pastel-cream); }
+  section.pastel-cherry { background: var(--pastel-cherry); }
+  section.pastel-sky    { background: var(--pastel-sky); }
+
+  .section-label { font-family: var(--hand); font-size: 32px; color: var(--ink); margin-bottom: 8px; }
+  .section-label + svg.wavy { display: block; margin-bottom: 48px; }
+
+  .divider {
+    height: 16px;
+    background-image: radial-gradient(circle, #5a8a38 1.5px, transparent 1.5px);
+    background-size: 16px 16px;
+    background-repeat: repeat-x;
+    background-position: center;
+  }
+
+  /* ─────────── HERO + PHYSICS GARDEN ─────────── */
+  .hero {
+    position: relative; overflow: hidden;
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding-top: calc(var(--nav-h) + 48px);
+    cursor: grab;                  /* ← signals "you can grab the decorations" */
+  }
+  .hero-text {
+    font-family: var(--hand);
+    font-size: 56px; line-height: 1.3;
+    color: var(--ink); text-align: center;
+    animation: heroTextIn 800ms cubic-bezier(0.22, 1, 0.36, 1) 200ms both;
+  }
+  @keyframes heroTextIn {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  /* Container for the physics-driven SVGs */
+  .hero-illustrations {
+    position: absolute; inset: 0;
+    pointer-events: none;          /* host owns events; constraint dispatches by body */
+  }
+  .hero-illustrations svg {
+    position: absolute;
+    opacity: 0;                    /* physics will reveal on tick 1 */
+    will-change: transform;
+  }
+
+  /* ─────────── ABOUT (text spring + pencil) ─────────── */
+  .about-wrap { display: grid; grid-template-columns: 1fr 320px; gap: 80px; align-items: center; max-width: 1200px; margin: 0 auto; }
+  .about-tag  { font-family: var(--hand); font-size: 22px; color: var(--ink); }
+  .about-role { font-family: var(--sans); font-size: 13px; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 24px; }
+  .about-name { font-family: var(--serif); font-size: 48px; color: var(--ink); margin: 8px 0 24px; }
+  .about-bio  { max-width: 560px; }
+  .about-bio p { margin-bottom: 16px; }
+  .about-portrait { width: 280px; height: 280px; border-radius: 50%; overflow: hidden; background: #ddd; margin-left: auto; }
+
+  /* ─────────── NEWS (plain text spring) ─────────── */
+  .news-list { max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; gap: 32px; }
+  .news-item { display: grid; grid-template-columns: 120px 1fr; gap: 32px; padding-bottom: 24px; border-bottom: 1px dashed rgba(0,0,0,0.15); }
+  .news-date     { font-family: var(--sans); font-size: 13px; color: var(--muted); }
+  .news-title    { font-family: var(--serif); font-style: italic; font-size: 20px; color: var(--ink); margin-bottom: 6px; }
+  .news-subtitle { font-size: 13px; color: var(--body); margin-bottom: 8px; }
+  .news-excerpt  { font-size: 13px; color: var(--body); }
+
+  /* ─────────── CONTACT (idle-spin plus marks) ─────────── */
+  .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; max-width: 1000px; margin: 0 auto; }
+  .contact-cell {
+    padding: 24px 0; border-bottom: 1px solid rgba(0,0,0,0.08);
+    display: flex; align-items: center; gap: 16px;
+  }
+  .contact-plus {
+    width: 18px; height: 18px; flex-shrink: 0;
+    display: inline-block;
+    will-change: transform;
+  }
+  .contact-label  { font-size: 11px; color: var(--muted); letter-spacing: 0.15em; text-transform: uppercase; }
+  .contact-handle { font-family: var(--serif); font-style: italic; font-size: 18px; margin-left: auto; }
+
+  /* ─────────── FOOTER + GARDEN ─────────── */
+  footer {
+    position: relative; overflow: hidden;
+    padding: 96px 48px 240px;
+    text-align: center;
+    cursor: grab;
+  }
+  footer .mark { font-family: var(--serif); font-style: italic; font-size: 28px; }
+  footer .sub  { font-family: var(--sans); font-size: 13px; color: var(--muted); margin-top: 4px; margin-bottom: 32px; }
+  footer .copy { font-size: 12px; color: var(--muted); margin-top: 16px; }
+  #footer-garden { position: absolute; inset: 0; pointer-events: none; }
+  #footer-garden svg { position: absolute; opacity: 0; will-change: transform; }
+
+  /* ─────────── Accessibility ─────────── */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0ms !important;
+    }
+  }
+
+  /* ─────────── Responsive ─────────── */
+  @media (max-width: 900px) {
+    .contact-grid { grid-template-columns: 1fr; }
+    .hero-text { font-size: 36px; }
+    .about-wrap { grid-template-columns: 1fr; }
+    .about-portrait { margin: 0 auto; }
+    .news-item { grid-template-columns: 1fr; gap: 8px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="brand">
+  <div class="mark">[Your Studio Name]</div>
+  <!-- The sakura nav mark — initTangentialRotor() makes it spin from cursor tangent -->
+  <button class="nav-menu-btn" aria-label="Menu">
+    <svg width="44" height="44" viewBox="0 0 44 44" aria-hidden="true">
+      <g transform="rotate(0 22 22)"><path d="M22 21 C19 20 15 17 14 13 C13 9 15 5 18 4 C20 3 22 4 23 6 C25 4 27 3 29 5 C31 7 31 11 29 14 C27 17 24 20 22 21Z" fill="#f0b0c0" stroke="#1a1a1a" stroke-width="1.2"/></g>
+      <g transform="rotate(72 22 22)"><path d="M22 21 C19 20 15 17 14 13 C13 9 15 5 18 4 C20 3 22 4 23 6 C25 4 27 3 29 5 C31 7 31 11 29 14 C27 17 24 20 22 21Z" fill="#f5bec8" stroke="#1a1a1a" stroke-width="1.2"/></g>
+      <g transform="rotate(144 22 22)"><path d="M22 21 C19 20 15 17 14 13 C13 9 15 5 18 4 C20 3 22 4 23 6 C25 4 27 3 29 5 C31 7 31 11 29 14 C27 17 24 20 22 21Z" fill="#f0b0c0" stroke="#1a1a1a" stroke-width="1.2"/></g>
+      <g transform="rotate(216 22 22)"><path d="M22 21 C19 20 15 17 14 13 C13 9 15 5 18 4 C20 3 22 4 23 6 C25 4 27 3 29 5 C31 7 31 11 29 14 C27 17 24 20 22 21Z" fill="#f5bec8" stroke="#1a1a1a" stroke-width="1.2"/></g>
+      <g transform="rotate(288 22 22)"><path d="M22 21 C19 20 15 17 14 13 C13 9 15 5 18 4 C20 3 22 4 23 6 C25 4 27 3 29 5 C31 7 31 11 29 14 C27 17 24 20 22 21Z" fill="#f0b0c0" stroke="#1a1a1a" stroke-width="1.2"/></g>
+      <circle cx="22" cy="22" r="4" fill="#e879a0" stroke="#1a1a1a" stroke-width="1"/>
+    </svg>
+  </button>
+</nav>
+
+<!-- ============ HERO + PHYSICS GARDEN ============ -->
+<section id="hero" class="hero">
+  <div class="hero-text">
+    Everyday [mood-word].<br>
+    Sometimes [contrast-mood].
+  </div>
+
+  <!-- Each SVG here becomes a draggable physics body. Add 5–9 of them, varied in size.
+       The cfg array in the <script> below must have one entry per SVG in this order. -->
+  <div class="hero-illustrations">
+    <!-- Shape A — big layered stone -->
+    <svg width="328" height="308" viewBox="0 0 420 395">
+      <g opacity="0.93">
+        <path d="M30 220 Q42 92 178 52 Q292 18 362 98 Q402 158 387 262 Q368 332 272 358 Q172 382 100 332 Q28 292 30 220Z" fill="#f0b0c0" stroke="#1a1a1a" stroke-width="2.5"/>
+        <path d="M30 220 Q48 132 140 92 Q222 65 294 88 Q272 142 232 166 Q182 186 132 186 Q68 186 30 220Z" fill="#98b8d8" stroke="#1a1a1a" stroke-width="1.5"/>
+      </g>
+    </svg>
+    <!-- Shape B — small stem with seeds -->
+    <svg width="118" height="289" viewBox="-14 0 150 370">
+      <g opacity="0.94">
+        <path d="M63 342 Q58 262 65 182 Q68 122 63 28" stroke="#4a9855" stroke-width="5" fill="none" stroke-linecap="round"/>
+        <circle cx="12" cy="160" r="18" fill="#d8d825" stroke="#5a6018" stroke-width="2"/>
+        <circle cx="114" cy="140" r="18" fill="#d8d825" stroke="#5a6018" stroke-width="2"/>
+        <circle cx="63"  cy="24"  r="20" fill="#d8d825" stroke="#5a6018" stroke-width="2"/>
+      </g>
+    </svg>
+    <!-- Shape C — pink flower stone -->
+    <svg width="230" height="238" viewBox="0 0 295 305">
+      <g opacity="0.92">
+        <path d="M18 148 Q13 78 73 38 Q128 3 198 23 Q253 48 268 108 Q278 162 248 203 Q213 246 153 256 Q88 266 43 228 Q13 203 18 148Z" fill="#f0a8b8" stroke="#1a1a1a" stroke-width="2.5"/>
+        <path d="M53 138 Q72 83 143 68 Q203 58 238 103 Q228 148 198 168 Q158 186 113 178 Q68 168 53 138Z" fill="#78b8c8" stroke="#1a1a1a" stroke-width="1.5"/>
+      </g>
+    </svg>
+    <!-- Shape D — small lime cross (uses the page's one accent color) -->
+    <svg width="43" height="43" viewBox="0 0 56 56">
+      <g opacity="0.88">
+        <line x1="28" y1="4"  x2="28" y2="52" stroke="#c8ff00" stroke-width="5" stroke-linecap="round"/>
+        <line x1="4"  y1="28" x2="52" y2="28" stroke="#c8ff00" stroke-width="5" stroke-linecap="round"/>
+      </g>
+    </svg>
+    <!-- Add more shapes here. Match the cfg array below 1:1. -->
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ============ ABOUT (text spring + pencil cursor) ============ -->
+<section id="about" class="pastel-cream">
+  <div class="section-label">About</div>
+  <svg class="wavy" viewBox="0 0 1200 14" preserveAspectRatio="none" width="100%" height="14">
+    <path d="M0 7 Q60 3 120 7 Q180 11 240 7 Q300 3 380 7 Q460 11 540 7 Q620 3 700 7 Q780 11 860 7 Q940 3 1020 8 Q1080 11 1140 7 Q1170 4 1200 7" stroke="#1a1a1a" stroke-width="1.2" fill="none"/>
+  </svg>
+  <div class="about-wrap">
+    <div>
+      <div class="about-tag">Profile</div>
+      <div class="about-role">[art role / title]</div>
+      <div class="about-name">[Your Name]</div>
+      <div class="about-bio">
+        <p>[2–3 sentence bio in your primary language. This whole paragraph will be split into per-character spans by initTextSpring; characters lean away from the pencil tip as the cursor passes.]</p>
+        <p>[Translation paragraph. Spaces stay inline so they don't break.]</p>
+      </div>
+    </div>
+    <div class="about-portrait"><!-- portrait image --></div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ============ NEWS (plain text spring) ============ -->
+<section id="news" class="pastel-cherry">
+  <div class="section-label">News</div>
+  <svg class="wavy" viewBox="0 0 1200 14" preserveAspectRatio="none" width="100%" height="14">
+    <path d="M0 7 Q60 3 120 7 Q180 11 240 7 Q300 3 380 7 Q460 11 540 7 Q620 3 700 7 Q780 11 860 7 Q940 3 1020 8 Q1080 11 1140 7 Q1170 4 1200 7" stroke="#1a1a1a" stroke-width="1.2" fill="none"/>
+  </svg>
+  <div class="news-list">
+    <div class="news-item">
+      <div class="news-date">2026.05.11</div>
+      <div>
+        <div class="news-title">[An evocative news headline]</div>
+        <div class="news-subtitle">[Optional subtitle]</div>
+        <div class="news-excerpt">[120-char excerpt that the spring effect makes feel alive when the cursor sweeps past.]</div>
+      </div>
+    </div>
+    <div class="news-item">
+      <div class="news-date">2026.04.18</div>
+      <div>
+        <div class="news-title">[Second headline]</div>
+        <div class="news-excerpt">[Excerpt body — chars repel from cursor proximity, then spring back to origin.]</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ============ CONTACT (idle-spin plus marks) ============ -->
+<section class="pastel-sky">
+  <div class="section-label">Contact</div>
+  <svg class="wavy" viewBox="0 0 1200 14" preserveAspectRatio="none" width="100%" height="14">
+    <path d="M0 7 Q60 3 120 7 Q180 11 240 7 Q300 3 380 7 Q460 11 540 7 Q620 3 700 7 Q780 11 860 7 Q940 3 1020 8 Q1080 11 1140 7 Q1170 4 1200 7" stroke="#1a1a1a" stroke-width="1.2" fill="none"/>
+  </svg>
+  <div class="contact-grid">
+    <div class="contact-cell">
+      <!-- data-speed = seconds per rev; data-rev="1" reverses direction. Hover = 6× speed. -->
+      <svg class="contact-plus" viewBox="0 0 18 18" data-speed="4">
+        <line x1="9" y1="1" x2="9" y2="17" stroke="#1a1a1a" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="1" y1="9" x2="17" y2="9" stroke="#1a1a1a" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <div class="contact-label">[Channel 1]</div>
+      <div class="contact-handle">[@handle]</div>
+    </div>
+    <div class="contact-cell">
+      <svg class="contact-plus" viewBox="0 0 18 18" data-speed="5" data-rev="1">
+        <line x1="9" y1="1" x2="9" y2="17" stroke="#1a1a1a" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="1" y1="9" x2="17" y2="9" stroke="#1a1a1a" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <div class="contact-label">[Channel 2]</div>
+      <div class="contact-handle">[handle]</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ============ FOOTER + GARDEN ============ -->
+<footer>
+  <div class="mark">[Your Studio Name]</div>
+  <div class="sub">by [your name]</div>
+  <div class="copy">©[year], [Your Studio Name]</div>
+
+  <!-- Footer physics garden — same pattern as hero, scoped to <footer>. -->
+  <div id="footer-garden">
+    <svg width="220" height="220" viewBox="0 0 285 305">
+      <g opacity="0.91">
+        <path d="M8 178 Q3 88 68 38 Q118 3 182 18 Q232 33 257 88 Q272 138 257 198 Q238 252 183 273 Q118 292 68 263 Q18 238 8 178Z" fill="#9098a8" stroke="#1a1a1a" stroke-width="2.5"/>
+      </g>
+    </svg>
+    <svg width="120" height="120" viewBox="0 0 150 150">
+      <g opacity="0.92">
+        <circle cx="75" cy="75" r="60" fill="#78b8c8" stroke="#1a1a1a" stroke-width="2"/>
+      </g>
+    </svg>
+    <svg width="60" height="60" viewBox="0 0 56 56">
+      <g opacity="0.88">
+        <line x1="28" y1="4"  x2="28" y2="52" stroke="#c8ff00" stroke-width="5" stroke-linecap="round"/>
+        <line x1="4"  y1="28" x2="52" y2="28" stroke="#c8ff00" stroke-width="5" stroke-linecap="round"/>
+      </g>
+    </svg>
+  </div>
+</footer>
+
+<!-- ────────────────────────────────────────────────────────────
+     Scripts — Matter.js must load BEFORE interactive.js
+     ──────────────────────────────────────────────────────────── -->
+<script src="https://cdn.jsdelivr.net/npm/matter-js@0.19.0/build/matter.min.js"></script>
+<script src="js/interactive.js"></script>
+<script>
+  const { initPhysicsGarden, initTextSpring, initTangentialRotor, initIdleSpin } = window.xiaoerInteractive;
+
+  // 1. Hero physics garden — one cfg entry per SVG in DOM order
+  initPhysicsGarden('#hero', {
+    svgContainerSelector: '.hero-illustrations',
+    cfg: [
+      { r: 155, xf: 0.39, y0: -380, res: 0.28, fa: 0.013 },   // shape A
+      { r:  48, xf: 0.54, y0: -550, res: 0.45, fa: 0.022 },   // shape B
+      { r: 115, xf: 0.35, y0: -260, res: 0.32, fa: 0.015 },   // shape C
+      { r:  22, xf: 0.85, y0: -120, res: 0.55, fa: 0.026 },   // shape D
+    ],
+  });
+
+  // 2. Footer physics garden — independent world, no nav coupling
+  initPhysicsGarden('footer', {
+    svgContainerSelector: '#footer-garden',
+    cfg: [
+      { r: 100, xf: 0.20, y0: -360, res: 0.28, fa: 0.015 },
+      { r:  55, xf: 0.55, y0: -280, res: 0.35, fa: 0.018 },
+      { r:  20, xf: 0.85, y0: -180, res: 0.55, fa: 0.026 },
+    ],
+  });
+
+  // 3. About text spring with pencil cursor — small radius, snappy spring (reading-friendly)
+  initTextSpring('#about', {
+    targets: ['.about-tag', '.about-role', '.about-name', '.about-bio'],
+    R: 28, F: 7, spring: 0.15, damping: 0.68,
+    pencil: true,
+  });
+
+  // 4. News text spring without pencil — larger radius, softer return (glance-friendly)
+  initTextSpring('#news', {
+    targets: ['.news-title', '.news-subtitle', '.news-excerpt', '.news-date'],
+    R: 55, F: 8, spring: 0.12, damping: 0.70,
+    pencil: false,
+  });
+
+  // 5. Tangential rotor on the nav mark
+  initTangentialRotor(document.querySelector('.nav-menu-btn'));
+
+  // 6. Idle-spin on contact plus marks (hover boost = 6×)
+  initIdleSpin(document.querySelectorAll('.contact-plus'));
+</script>
+
+</body>
+</html>

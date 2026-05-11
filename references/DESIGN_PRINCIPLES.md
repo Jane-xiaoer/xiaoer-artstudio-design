@@ -1,6 +1,8 @@
 # Design Principles — The "Why" Behind 小耳 Art Studio
 
-Seven principles. Each one explains a decision on the site so you can make the same decision in a new context.
+Eight principles. Each one explains a decision on the site so you can make the same decision in a new context.
+
+> Principles 1–7 are *visual* (what the page looks like at rest). Principle 8 is *behavioral* (what the page does when the visitor arrives). A reproduction that ships only 1–7 looks like the site but doesn't *feel* like it — see `INTERACTION.md`.
 
 ---
 
@@ -131,9 +133,40 @@ Product names are **single kanji**: `于 / 知 / 风 / 果 / 色 / 常 / 在 / �
 
 ---
 
+## Principle 8 — The Cursor Is a Visitor, Not a Tool
+
+**Observation**: The page has **five independent interaction systems**, none of which exist to "use" the site:
+
+- **Hero / footer physics garden** — decorative SVGs are Matter.js rigid bodies with gravity. The cursor can grab and throw them.
+- **Text spring (with pencil)** — the bio paragraph is split into per-character spans; a custom pencil cursor pushes them aside via spring forces.
+- **Text spring (plain)** — news titles use the same per-character repulsion without the pencil.
+- **Tangential rotor** — the sakura nav mark spins by transferring the cursor's tangential momentum.
+- **Idle-spin with hover boost** — small plus-mark ornaments rotate slowly, accelerate 6× on hover.
+
+None of these are required for the site to function (it's fully usable with JS disabled). Their purpose is to communicate that **the visitor's presence affects the page** — gently, without alarm.
+
+**Why it works**: A static design is a *picture*. A design with click-and-scroll behavior is a *brochure*. A design where the room responds to the visitor's presence is a *space*. The site sells the third experience because that's what an artist's studio actually feels like.
+
+**How to apply**: Every interactive layer must follow these rules.
+
+- **The cursor is wind, not a sword** — proximity & momentum are the inputs; clicks are reserved for navigation.
+- **Decorative responses use transforms** (drag, repel, rotate). **Functional responses use opacity only** (see `MOTION.md` § Two Hover Categories).
+- **Spring/physics return** — anything pushed must return to rest. No bistable states.
+- **Never block reading** — text spring on body paragraphs is allowed only if chars return fast (spring k ≥ 0.12, damping ≤ 0.7). If reading feels like wading through water, the spring is too strong.
+- **`cursor: grab` on physics areas. `cursor: pointer` only on real links.** Never confuse these.
+- **Minimum viable build**: 1 physics garden (hero) + 1 text-spring section. Two layers carry 80% of the feeling.
+
+**Failure mode**: Adding interaction to "show off" — hover scales on product cards, parallax scroll, pulsing CTAs. These signal *SaaS dashboard*, not *artist studio*. The interaction must always be *quieter* than the static design, never louder.
+
+See `INTERACTION.md` for the system map, then `PHYSICS_GARDEN.md` and `TEXT_SPRING.md` for the two main patterns.
+
+---
+
 ## Fidelity Checklist
 
 Before claiming a reproduction is done, verify **each**:
+
+### Visual (Principles 1–7)
 
 - [ ] Three font voices, with body=sans, labels=cursive, titles=serif
 - [ ] Section backgrounds rotate `white → pastel → white → pastel`
@@ -146,4 +179,17 @@ Before claiming a reproduction is done, verify **each**:
 - [ ] At least one single-kanji / single-character product or work name
 - [ ] Hero headline uses onomatopoeia or mood-word (not a value prop)
 
-8/10 = acceptable. 10/10 = fidelity target.
+10/10 visual = visual fidelity target.
+
+### Behavioral (Principle 8)
+
+- [ ] At least one physics garden (drag-able SVG decorations with gravity)
+- [ ] At least one text-spring section (per-character repulsion, returns to rest)
+- [ ] No `transform` hover effects on functional controls (product cards, links, buttons)
+- [ ] `cursor: grab` on physics areas, `cursor: pointer` only on real links
+- [ ] Site is fully readable & navigable with JS disabled
+- [ ] `prefers-reduced-motion: reduce` disables physics + spring (not just CSS)
+
+6/6 behavioral = "feels like the site" target.
+
+**A reproduction can score 10/10 visual and 0/6 behavioral and still feel dead.** The interaction layer is not optional polish — it's half the methodology.
